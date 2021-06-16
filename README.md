@@ -67,6 +67,7 @@
     + 클라이언트 부분<br>
     <img src = "./img/Client_Out.PNG"><br>
     + 서버 부분<br>
+    <img src = "./img/Server_Out.PNG"><br>
     
     
   + 클라이언트의 금칙어 입력<br>
