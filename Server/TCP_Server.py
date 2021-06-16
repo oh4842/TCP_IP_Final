@@ -11,56 +11,60 @@ def client_info(client_sock, client_ip, client_port):
     
     # 메시지를 계속 처리하기 위해
     while True:
-        # 메시지 수신
-        msg = client_sock.recv(buf_size)
-        # 서버에 메시지 출력
-        print(msg.decode())
-        # 메시지로 /out 이라는 것을 받았을 때
-        if msg.decode() in '/out':
-            print('[%s] 클라이언트 종료합니다...' % client_port)
-            # 해당 클라이언트 소캣을 배열에서 지워주고
-            connections.remove(client_sock)
-            # 해당 클라이언트를 닫는다.
-            client_sock.close()
-        
-        # 받은 메시지 중 'connectnickname|' 존재 여부를 찾는다
-        tempmsgnick = msg.decode().find('connectnickname|')
-        # 받은 메시지 중 'kill|' 존재 여부를 찾는다
-        tempkill = msg.decode().find('kill|')
+        try:
+            # 메시지 수신
+            msg = client_sock.recv(buf_size)
+            # 서버에 메시지 출력
+            print(msg.decode())
+            # 메시지로 /out 이라는 것을 받았을 때
+            if msg.decode() in '/out':
+                print('[%s] 클라이언트 종료합니다...' % client_port)
+                # 해당 클라이언트 소캣을 배열에서 지워주고
+                connections.remove(client_sock)
+                # 해당 클라이언트를 닫는다.
+                client_sock.close()
 
-        # kill|이 있다면 실행
-        if tempkill != -1:
-            # 2개의 변수로 나누어 받는다. kill|유저이름 형식
-            tempkill1, tempkill2 = msg.decode().split('|')
-            # 보내서 담아줄 변수 실행
-            temp: object = tempkill2 + '가 사망했습니다'
-            # 모두에게 메시지를 보내준다.
-            for conn in connections:
-                conn.sendall(str(temp).encode())
-            # 해당하는 소캣을 닫아버린다.
-            socket_list[tempkill2].close()
-            # connections에서 해당 값 삭제
-            connections.remove(client_sock)
-            # socket_list에서 해당 값 삭제
-            del socket_list[tempkill2]
-            continue
-        # connectnickname|이 있다면 실행
-        if tempmsgnick != -1:
-            # connectnickname|유저이름 형식으로 받아서 나눈다.
-            tempmsgnick1, tempmsgnick2 = msg.decode().split('|')
-            # socket_list에 추가한다.
-            socket_list.setdefault(tempmsgnick2, client_sock)
+            # 받은 메시지 중 'connectnickname|' 존재 여부를 찾는다
+            tempmsgnick = msg.decode().find('connectnickname|')
+            # 받은 메시지 중 'kill|' 존재 여부를 찾는다
+            tempkill = msg.decode().find('kill|')
 
-        # 소캣 정보 배열에 있는 소캣들 마다 전부 보내준다.
-        for conn in connections:
-            # 자신이라면 보내지 않는다
-            if conn == client_sock:
+            # kill|이 있다면 실행
+            if tempkill != -1:
+                # 2개의 변수로 나누어 받는다. kill|유저이름 형식
+                tempkill1, tempkill2 = msg.decode().split('|')
+                # 보내서 담아줄 변수 실행
+                temp: object = tempkill2 + '가 사망했습니다'
+                # 모두에게 메시지를 보내준다.
+                for conn in connections:
+                    conn.sendall(str(temp).encode())
+                # 해당하는 소캣을 닫아버린다.
+                socket_list[tempkill2].close()
+                # connections에서 해당 값 삭제
+                connections.remove(client_sock)
+                # socket_list에서 해당 값 삭제
+                del socket_list[tempkill2]
                 continue
-            conn.send(msg)
+            # connectnickname|이 있다면 실행
+            if tempmsgnick != -1:
+                # connectnickname|유저이름 형식으로 받아서 나눈다.
+                tempmsgnick1, tempmsgnick2 = msg.decode().split('|')
+                # socket_list에 추가한다.
+                socket_list.setdefault(tempmsgnick2, client_sock)
 
-        # 메시지가 없을 경우 반복문 탈출
-        if not msg:
-            break
+            # 소캣 정보 배열에 있는 소캣들 마다 전부 보내준다.
+            for conn in connections:
+                # 자신이라면 보내지 않는다
+                if conn == client_sock:
+                    continue
+                conn.send(msg)
+
+            # 메시지가 없을 경우 반복문 탈출
+            if not msg:
+                break
+        except:
+            pass
+
 
 # 서버 Ip
 host = '127.0.0.1'

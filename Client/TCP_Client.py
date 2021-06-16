@@ -6,32 +6,34 @@ from threading import Thread
 def receive_handler():
     while True:
         # 메시지 수신
-        receiveMsg = sock.recv(buf_size)
-        # 아무것도 없을 시 반복문 종료
-        if not receiveMsg:
-            break
-        # 깔끔하게 보이게 하기위한 콘솔창 전 줄 삭제
-        print('', end='\r', flush=True)
-        # 받는 메시지중 ':'이 있나 확인한다.
-        flag = receiveMsg.decode().find(':')
-        # ':'이 있다면 실행
-        if flag != -1:
-            # 메시지 출력
-            print(receiveMsg.decode())
-            # split으로 나눈 내용들을 따로 저장한다.
-            nick, nick_answer = receiveMsg.decode().split(':')
-            # 나눈 후 정답 부분의 문자열을 해당 클라이언트에 저장한 것과 비교한다.
-            if nick_answer == answer:
-                # 정답이 맞을 시 죽었다는 걸 알리기 위해 보낸다.
-                sock.send(str('kill|' + user_name).encode())
-                print('당신은 죽었습니다.')
-                # 프로그램 종료
-                exit()
-        else:
-            # 메시지 출력
-            print(receiveMsg.decode())
-            continue
-
+        try:
+            receiveMsg = sock.recv(buf_size)
+            # 아무것도 없을 시 반복문 종료
+            if not receiveMsg:
+                break
+            # 깔끔하게 보이게 하기위한 콘솔창 전 줄 삭제
+            print('', end='\r', flush=True)
+            # 받는 메시지중 ':'이 있나 확인한다.
+            flag = receiveMsg.decode().find(':')
+            # ':'이 있다면 실행
+            if flag != -1:
+                # 메시지 출력
+                print(receiveMsg.decode())
+                # split으로 나눈 내용들을 따로 저장한다.
+                nick, nick_answer = receiveMsg.decode().split(':')
+                # 나눈 후 정답 부분의 문자열을 해당 클라이언트에 저장한 것과 비교한다.
+                if nick_answer == answer:
+                    # 정답이 맞을 시 죽었다는 걸 알리기 위해 보낸다.
+                    sock.send(str('kill|' + user_name).encode())
+                    print('당신은 죽었습니다.')
+                    # 프로그램 종료
+                    exit()
+            else:
+                # 메시지 출력
+                print(receiveMsg.decode())
+                continue
+        except:
+            pass
 
 # 메시지를 보내는 함수
 def send_handler():
@@ -68,7 +70,7 @@ if __name__ == '__main__':
     sock = socket(AF_INET, SOCK_STREAM)
     # 서버ip, port로 접속
     sock.connect(ADDR)
-    print('서버 연결을 성공하였습니다.')
+    print('서버에 연결 되었습니다.')
 
     # 이름이 제대로 입력 될 때 까지
     while True:
